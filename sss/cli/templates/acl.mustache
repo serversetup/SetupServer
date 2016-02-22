@@ -1,0 +1,6 @@
+# Simple Setup Server (sss) protect locations using
+# HTTP authentication || IP address
+AuthType Basic
+AuthName "Restricted Content"
+AuthUserFile /etc/apache2/htpasswd-sss
+Require valid-user

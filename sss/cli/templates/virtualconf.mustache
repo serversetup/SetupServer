@@ -1,0 +1,25 @@
+<VirtualHost *:80>
+
+	ServerName {{site_name}}
+	ServerAlias www.{{site_name}}
+	ServerAdmin webmaster@localhost
+	DocumentRoot {{webroot}}/htdocs
+
+	ErrorLog /var/log/apache2/{{site_name}}.error.log
+	CustomLog /var/log/apache2/{{site_name}}.access.log combined
+
+	#Include conf-available/serve-cgi-bin.conf
+	
+	<Directory "/htdocs">
+		Order allow,deny
+		Allow from all
+		AllowOverride FileInfo All
+		# New directive needed in Apache 2.4.3:
+		Require all granted
+	</Directory>
+	{{^static}}
+	<FilesMatch \.php$>
+         SetHandler "proxy:fcgi://127.0.0.1:9000"
+	</FilesMatch>
+	{{/static}}
+</VirtualHost>

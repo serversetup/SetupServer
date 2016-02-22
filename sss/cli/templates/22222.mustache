@@ -1,0 +1,30 @@
+Listen 22222
+Listen 22223
+
+# Redirect to HTTPS on 22223 Port
+<VirtualHost *:22222>
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^([^:]+)(:[0-9]+)?$
+	RewriteRule ^ https://%1:22223/ [R,L]
+</VirtualHost>
+
+
+<VirtualHost *:22223>
+	DocumentRoot {{webroot}}22222/htdocs
+	Protocols h2 http/1.1
+	ErrorLog /var/log/apache2/error.log
+	CustomLog /var/log/apache2/access.log combined
+	#Include conf-available/serve-cgi-bin.conf
+	SSLEngine on
+	SSLCertificateFile /etc/apache2/ssl/22222.crt
+	SSLCertificateKeyFile /etc/apache2/ssl/22222.key
+	<Directory "{{webroot}}22222/htdocs">
+		include conf-available/acl.conf
+		Order allow,deny
+		Allow from all
+		AllowOverride FileInfo All
+	</Directory>
+	<FilesMatch \.php$>
+         SetHandler "proxy:fcgi://127.0.0.1:9000"
+	</FilesMatch>
+</VirtualHost>
