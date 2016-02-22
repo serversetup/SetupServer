@@ -18,7 +18,7 @@
 
 ```bash
 wget -qO sss bit.do/sssinstall && sudo bash sss     # Install easyengine 3
-sudo sss site create example.com --mysql     # Install required packages & setup WordPress on example.com
+sudo sss site create example.com --mysql            # Install required packages & setup example.com
 ```
 
 ## License
