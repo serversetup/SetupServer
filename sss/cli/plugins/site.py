@@ -274,9 +274,9 @@ class SSSSiteEditController(CementBaseController):
                    '/etc/apache2/sites-available/{0}.conf'.format(sss_domain))):
                     SSSGit.add(self, ["/etc/apache2"], msg="Edit website: {0}"
                               .format(sss_domain))
-                    # Reload NGINX
+                    # Reload Apache
                     if not SSSService.reload_service(self, 'apache2'):
-                        Log.error(self, "service nginx reload failed. "
+                        Log.error(self, "service apache2 reload failed. "
                                   "check issues with `service apache2 reload` command")
         else:
             Log.error(self, "Apache configuration file does not exists"
@@ -462,7 +462,7 @@ class SSSSiteCreateController(CementBaseController):
                 doCleanupAction(self, domain=sss_domain,
                                 webroot=data['webroot'])
                 deleteSiteInfo(self, sss_domain)
-                Log.info(self, Log.FAIL + "service nginx reload failed."
+                Log.info(self, Log.FAIL + "service Apache reload failed."
                          "check issues with `apachectl configtest` command")
                 Log.error(self, "Check logs for reason "
                           "`tail /var/log/sss/sss.log` & Try Again!!!")
@@ -553,7 +553,7 @@ class SSSSiteDeleteController(CementBaseController):
            (not self.app.pargs.all)):
             self.app.pargs.all = True
 
-        # Gather information from ee-db for sss_domain
+        # Gather information from sss-db for sss_domain
         check_site = getSiteInfo(self, sss_domain)
         sss_site_type = check_site.site_type
         sss_site_webroot = check_site.site_path

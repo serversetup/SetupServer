@@ -16,7 +16,7 @@ class SSSImportslowlogController(CementBaseController):
         stacked_on = 'base'
         stacked_type = 'nested'
         description = 'Import MySQL slow log to Anemometer database'
-        usage = "ee import-slow-log"
+        usage = "sss import-slow-log"
 
     @expose(hide=True)
     def default(self):

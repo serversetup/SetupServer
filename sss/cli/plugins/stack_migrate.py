@@ -114,7 +114,7 @@ class SSSStackMigrateController(CementBaseController):
 
                 Log.info(self, "If your database size is big, "
                          "migration may take some time.")
-                Log.info(self, "During migration non nginx-cached parts of "
+                Log.info(self, "During migration non Apache parts of "
                          "your site may remain down")
                 start_migrate = input("Type \"mariadb\" to continue:")
                 if start_migrate != "mariadb":

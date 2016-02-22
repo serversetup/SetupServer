@@ -163,10 +163,10 @@ function sss_update()
 # Do git intialisation
 function sss_git_init()
 {
-    # Nginx under git version control
+    # Apache under git version control
     if [ -d /etc/apache2 ];then
         cd /etc/apache2
-        if [ ! -d /etc/nginx/.git ]; then
+        if [ ! -d /etc/apache2/.git ]; then
             git init &>> /dev/null
         fi
         git add -A .

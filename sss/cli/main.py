@@ -93,7 +93,7 @@ def main():
         # Setup the application
         app.setup()
 
-        # Dump all arguments into ee log
+        # Dump all arguments into sss log
         app.log.debug(sys.argv)
 
         # Run the application

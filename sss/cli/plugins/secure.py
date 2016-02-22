@@ -67,7 +67,7 @@ class SSSSecureController(CementBaseController):
                              .format(username=self.app.pargs.user_input,
                                      password=self.app.pargs.user_pass),
                              log=False)
-        SSSGit.add(self, ["/etc/nginx"],
+        SSSGit.add(self, ["/etc/apache2"],
                   msg="Adding changed secure auth into Git")
 
 
