@@ -1,0 +1,28 @@
+language: bash
+
+before_install:
+  - rm -rf ~/.gnupg
+
+before_script:
+  - sudo rm -rf /etc/mysql/
+  - sudo bash -c 'echo example.com > /etc/hostname'
+  - sudo service hostname restart
+  - sudo apt-get -qq purge mysql* graphviz*
+  - sudo apt-get -qq autoremove
+  - sudo apt-get update
+
+script:
+  - unset LANG
+  - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
+  - sudo echo "Travis Banch = $TRAVIS_BRANCH"
+  - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt
+  - sudo bash install $TRAVIS_BRANCH
+  - sudo sss --help
+  - sudo sss stack install
+  - sudo sss stack install --web
+
+  - sudo sss site create html.net --html
+  - sudo sss site create php.com --php
+  - sudo sss site create mysql.com --mysql
+
+  - sudo bash -c 'cat /var/log/sss/sss.log'
