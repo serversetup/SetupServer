@@ -115,7 +115,7 @@ class SSSService():
         try:
             is_exist = subprocess.getstatusoutput('which {0}'
                                                   .format(service_name))
-            if is_exist[0] == 0:
+            if is_exist[0] == 0 or service_name in ['php7.0-fpm']:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
                 if retcode[0] == 0:
