@@ -1,3 +1,6 @@
+notifications:
+  slack: serversetup:NX943ExSNZd4nYBaKXiblPGC
+
 dist: trusty
 
 language: bash
