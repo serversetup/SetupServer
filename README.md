@@ -1,7 +1,10 @@
 #SimpleSetupServer
 
+[![Build Status](https://travis-ci.org/serversetup/SetupServer.svg?branch=master)](https://travis-ci.org/serversetup/SetupServer)
+
+
 **SimpleSetupServer currently supports:**
-- Ubuntu 12.04 & 14.04
+- Ubuntu 14.04
 
 
 **Port Requirements:**
