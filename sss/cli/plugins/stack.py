@@ -51,9 +51,11 @@ class SSSStackController(CementBaseController):
             (['--apache2'],
                 dict(help='Install Apache2 stack', action='store_true')),
             (['--php'],
-                dict(help='Install PHP stack', action='store_true')),
+                dict(help='Install PHP7 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
+            (['--phpmyadmin'],
+                dict(help='Install PHPMyAdmin stack', action='store_true')),
             ]
 
     @expose(hide=True)
@@ -357,6 +359,55 @@ class SSSStackController(CementBaseController):
                 SSSGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 SSSService.reload_service(self, 'mysql')
 
+        if len(packages):
+            if any('/tmp/pma.tar.gz' == x[1]
+                    for x in packages):
+                SSSExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
+                Log.debug(self, 'Extracting file /tmp/pma.tar.gz to '
+                          'location /tmp/')
+                if not os.path.exists('{0}22222/htdocs/db'
+                                      .format(SSSVariables.sss_webroot)):
+                    Log.debug(self, "Creating new  directory "
+                              "{0}22222/htdocs/db"
+                              .format(SSSVariables.sss_webroot))
+                    os.makedirs('{0}22222/htdocs/db'
+                                .format(SSSVariables.sss_webroot))
+                shutil.move('/tmp/phpmyadmin-STABLE/',
+                            '{0}22222/htdocs/db/pma/'
+                            .format(SSSVariables.sss_webroot))
+                shutil.copyfile('{0}22222/htdocs/db/pma/config.sample.inc.php'
+                                .format(SSSVariables.sss_webroot),
+                                '{0}22222/htdocs/db/pma/config.inc.php'
+                                .format(SSSVariables.sss_webroot))
+                Log.debug(self, 'Setting Blowfish Secret Key FOR COOKIE AUTH to  '
+                          '{0}22222/htdocs/db/pma/config.inc.php file '
+                          .format(SSSVariables.sss_webroot))
+                blowfish_key = ''.join([random.choice
+                         (string.ascii_letters + string.digits)
+                         for n in range(10)])
+                SSSFileUtils.searchreplace(self,
+                                          '{0}22222/htdocs/db/pma/config.inc.php'
+                                          .format(SSSVariables.sss_webroot),
+                                          "$cfg[\'blowfish_secret\'] = \'\';","$cfg[\'blowfish_secret\'] = \'{0}\';"
+                                          .format(blowfish_key))
+                Log.debug(self, 'Setting HOST Server For Mysql to  '
+                          '{0}22222/htdocs/db/pma/config.inc.php file '
+                          .format(SSSVariables.sss_webroot))
+                SSSFileUtils.searchreplace(self,
+                                          '{0}22222/htdocs/db/pma/config.inc.php'
+                                          .format(SSSVariables.sss_webroot),
+                                          "$cfg[\'Servers\'][$i][\'host\'] = \'localhost\';","$cfg[\'Servers\'][$i][\'host\'] = \'{0}\';"
+                                          .format(SSSVariables.sss_mysql_host))
+                Log.debug(self, 'Setting Privileges of webroot permission to  '
+                          '{0}22222/htdocs/db/pma file '
+                          .format(SSSVariables.sss_webroot))
+                SSSFileUtils.chown(self, '{0}22222'
+                                  .format(SSSVariables.sss_webroot),
+                                  SSSVariables.sss_php_user,
+                                  SSSVariables.sss_php_user,
+                recursive=True) 
+
+
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
@@ -364,7 +415,8 @@ class SSSStackController(CementBaseController):
         try:
             # Default action for stack installation
             if ((not self.app.pargs.web) and (not self.app.pargs.apache2) and
-                (not self.app.pargs.php) and (not self.app.pargs.mysql)):
+                (not self.app.pargs.php) and (not self.app.pargs.mysql) and 
+                (not self.app.pargs.phpmyadmin)):
                 self.app.pargs.web = True
                 self.app.pargs.apache2 = True
                 self.app.pargs.php = True
@@ -414,6 +466,13 @@ class SSSStackController(CementBaseController):
                     Log.debug(self, "MySQL connection is already alive")
                     Log.info(self, "MySQL connection is already alive")
 
+            if self.app.pargs.phpmyadmin:
+                Log.debug(self, "Setting packages varible for phpMyAdmin ")
+                packages = packages + [["https://github.com/phpmyadmin/"
+                                        "phpmyadmin/archive/STABLE.tar.gz",
+                                        "/tmp/pma.tar.gz", "phpMyAdmin"]]
+
+
         except Exception as e:
             pass
 
@@ -449,7 +508,8 @@ class SSSStackController(CementBaseController):
 
         # Default action for stack remove
         if ((not self.app.pargs.web) and (not self.app.pargs.apache2) and
-            (not self.app.pargs.php) and (not self.app.pargs.mysql)):
+            (not self.app.pargs.php) and (not self.app.pargs.mysql) and 
+            (not self.app.pargs.phpmyadmin)):
                 self.app.pargs.web = True
                 self.app.pargs.apache2 = True
                 self.app.pargs.php = True
@@ -478,6 +538,10 @@ class SSSStackController(CementBaseController):
             Log.debug(self,"Removing apt_packages variable of PHP")
             apt_packages = apt_packages + SSSVariables.sss_mysql
             packages = packages + ['/usr/bin/tuning-primer']
+        if self.app.pargs.phpmyadmin:
+            Log.debug(self, "Removing package variable of phpMyAdmin ")
+            packages = packages + ['{0}22222/htdocs/db/pma'
+            .format(SSSVariables.sss_webroot)]
 
         if len(packages) or len(apt_packages):
             sss_prompt = input('Are you sure you to want to'
@@ -509,7 +573,8 @@ class SSSStackController(CementBaseController):
 
         # Default action for stack remove
         if ((not self.app.pargs.web) and (not self.app.pargs.apache2) and
-            (not self.app.pargs.php) and (not self.app.pargs.mysql)):
+            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+            (not self.app.pargs.phpmyadmin)):
                 self.app.pargs.web = True
                 self.app.pargs.apache2 = True
                 self.app.pargs.php = True
@@ -538,6 +603,10 @@ class SSSStackController(CementBaseController):
             Log.debug(self,"Removing apt_packages variable of PHP")
             apt_packages = apt_packages + SSSVariables.sss_mysql
             packages = packages + ['/usr/bin/tuning-primer']
+        if self.app.pargs.phpmyadmin:
+            packages = packages + ['{0}22222/htdocs/db/pma'.
+                                   format(SSSVariables.sss_webroot)]
+            Log.debug(self, "Purge package variable phpMyAdmin")
 
         if len(packages) or len(apt_packages):
             sss_prompt = input('Are you sure you to want to purge '
