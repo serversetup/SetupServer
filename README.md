@@ -20,7 +20,7 @@
 ## Quick Start
 
 ```bash
-wget -qO sss bit.do/sssinstall && sudo bash sss     # Install easyengine 3
+wget -qO sss bit.do/sssinstall && sudo bash sss     # Install Simple Setup Server
 sudo sss site create example.com --mysql            # Install required packages & setup example.com
 ```
 
