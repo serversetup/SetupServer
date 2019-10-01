@@ -1,3 +1,5 @@
+## Note: This project is no longer maintained.
+
 #SimpleSetupServer
 
 [![Build Status](https://travis-ci.org/serversetup/SetupServer.svg?branch=master)](https://travis-ci.org/serversetup/SetupServer)
